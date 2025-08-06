@@ -1,6 +1,6 @@
 # The HCE method
 
-Official code for the preprint:
+Official code for the paper:
 
 **Hierarchical community detection via maximum entropy partitions and the renormalization group**
 
