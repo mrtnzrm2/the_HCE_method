@@ -3,19 +3,82 @@ import numpy.typing as npt
 from utils import *
 from plot_utils import draw_dendrogram
 
-def find_hce_level(distM : npt.NDArray, method="average", nK=None, rn=0, on=True, **kwargs):
+def ffind_hce_level(H : npt.NDArray, nK=None, rn=0, on=True, **kwargs):
   ''' 
+  Finds the optimal hierarchical level using the HCE method from a linkage matrix.
+
   Parameters
   ----------
 
-  distM : (N, N)  Distance matrix
-  rn : int is the number of renormalization steps to find the optimal hierarchical level.
+  H : npt.NDArray
+      Linkage matrix in Scipy format.
+  nK : int, optional
+      Specify partition level with nK communties. If None, the optimal number of communities is determined.
+  rn : int, optional
+      Number of renormalization steps to find the optimal hierarchical level. Default is 0.
+  on : bool, optional
+      If True, draws the dendrogram. Default is True.
+  kwargs : dict, optional
+      Additional keyword arguments to pass to the draw_dendrogram function.
 
   Returns
   -------
 
   labels : (N,) Community memberships
   K : int Number of communities
+  '''
+
+  if H.ndim != 2 or H.shape[1] != 3:
+    raise ValueError("H must be a 2D array with shape (N-1, 3).")
+  
+  if nK is None:
+  
+    hce = HCE(H, (H.shape[0] + 1))
+    K, _ = get_best_hce_level(hce, on=False)
+
+    i = 0
+    while i < rn:
+      hce = rHCE(H, (H.shape[0] + 1), K)
+      K, _ = get_best_hce_level(hce, on=False)
+      i += 1
+
+  else:
+    K = nK
+
+  if on:
+    draw_dendrogram(H, K, (H.shape[0] + 1), **kwargs)
+
+  labels = fast_cut_tree(H, n_clusters=K)
+
+  return labels, K
+
+def find_hce_level(distM : npt.NDArray, method="average", nK=None, rn=0, on=True, **kwargs):
+  ''' 
+  Finds the optimal hierarchical level using the HCE method from a distance matrix.
+
+  Parameters
+  ----------
+
+  distM : npt.NDArray
+      Distance matrix.
+  method : str, optional
+        Method to use in Scipy's linkage function. Default is "average".
+  nK : int, optional
+      Specify partition level with nK communties. If None, the optimal number of communities is determined.
+  rn : int, optional
+      Number of renormalization steps to find the optimal hierarchical level. Default is 0.
+  on : bool, optional
+      If True, draws the dendrogram. Default is True.
+  kwargs : dict, optional
+      Additional keyword arguments to pass to the draw_dendrogram function.
+
+  Returns
+  -------
+
+  labels : (npt.NDArray)
+      Community memberships
+  K : int
+      Number of communities
   '''
   from scipy.cluster.hierarchy import linkage
   from scipy.spatial.distance import squareform
