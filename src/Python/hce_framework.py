@@ -1,6 +1,60 @@
 import numpy as np
 import numpy.typing as npt
 from utils import *
+from plot_utils import draw_dendrogram
+
+def find_hce_level(distM : npt.NDArray, method="average", nK=None, rn=0, on=True, **kwargs):
+  ''' 
+  Parameters
+  ----------
+
+  distM : (N, N)  Distance matrix
+  rn : int is the number of renormalization steps to find the optimal hierarchical level.
+
+  Returns
+  -------
+
+  labels : (N,) Community memberships
+  K : int Number of communities
+  '''
+  from scipy.cluster.hierarchy import linkage
+  from scipy.spatial.distance import squareform
+  
+  distM2 = distM.copy()
+
+  if np.isnan(distM2).any() or np.isinf(distM2).any():
+    print("WARNING: There are nan or infinite values. The algorithm will replace them by max(distM[distM < inf]) + 1e-3.")
+    maxD = np.nanmax(distM2[distM2 < np.inf])
+    distM2[np.isnan(distM2)] = maxD + 1e-3
+    distM2[np.isinf(distM2)] = maxD + 1e-3
+  
+  if distM2.ndim == 1:
+    H = linkage(distM2, method=method)
+  elif distM2.ndim == 2:
+    H = linkage(squareform(distM2), method=method)
+  else:
+    raise ValueError("distM must be a condensed 1D distance matrix array or a 2D distance Matrix.")
+  
+  if nK is None:
+  
+    Sh4 = HCE(H, (H.shape[0] + 1))
+    K, _ = get_best_hce_level(Sh4, on=False)
+
+    i = 0
+    while i < rn:
+      Sh4 = rHCE(H, (H.shape[0] + 1), K)
+      K, _ = get_best_hce_level(Sh4, on=False)
+      i += 1
+
+  else:
+    K = nK
+
+  if on:
+    draw_dendrogram(H, K, (H.shape[0] + 1), **kwargs)
+
+  labels = fast_cut_tree(H, n_clusters=K)
+
+  return labels, K
 
 def HCE(H : npt.NDArray, N : int, use_tqdm=False):
     '''
@@ -142,3 +196,34 @@ def rHCE(H : npt.NDArray, N : int, rN : int, use_tqdm=False):
             rhce[(N-(i+1))] = s * (j+1) / (rN-1)    # apply community size normalization
 
     return rhce
+
+def get_best_hce_level(hce : dict):
+  '''
+    Function that computes the number of communities and dissimilarity value with the highest
+    HCE value from a HCE dictionary.
+
+    Parameters
+    ----------
+
+    hce : dict
+        Dictionary with the HCE metric for each level of the hierarchy.
+
+    Returns
+    -------
+    max_K : int
+        The number of communities with the highest HCE value.
+    max_hce : float
+        The highest HCE value.
+  '''
+  K = np.array(list(hce.keys())) # K is the number of communities per level
+  k_sort = np.argsort(K)
+  hce_values = np.array(list(hce.values()))
+  K = K[k_sort]
+  hce_values = hce_values[k_sort]
+
+  argmax_hce = np.nanargmax(hce_values)
+
+  max_K = K[argmax_hce]
+  max_hce = hce_values[argmax_hce]
+
+  return max_K, max_hce

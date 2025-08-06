@@ -138,6 +138,31 @@ def fast_cut_tree(H : npt.NDArray, n_clusters=None, height=None):
   
   return partition
 
+def filter_partition(partition : npt.ArrayLike):
+  ''' Filters a partition to remove singleton communities and renumber the communities.
+
+  Parameters
+  ----------
+
+  partition : npt.ArrayLike
+      Array of community labels for each node.
+
+  Returns
+  -------
+  
+  npt.NDArray
+      Filtered partition with singletons replaced by -1 and renumbered.'''
+  par = partition.copy()
+  from collections import Counter
+  fq = Counter(par)
+  for i in fq.keys():
+    if fq[i] == 1: par[par == i] = -1
+  new_partition = par
+  ndc = np.unique(par[par != -1])
+  for i, c in enumerate(ndc):
+    new_partition[par == c] = i
+  return new_partition
+
 class HNRG:
   '''Hierarchical Nested Random Graph (HNRG) model.'''
   def __init__(self, N : int, R : int, L : int, kav=16, rho=1, seed=None):
