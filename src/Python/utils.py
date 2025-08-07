@@ -142,6 +142,28 @@ def fast_cut_tree(H : npt.NDArray, n_clusters=None, height=None):
   
   return partition
 
+def linear_partition(partition : npt.ArrayLike):
+  ''' 
+  Filters a partition to renumber the communities linearly.
+  Parameters
+  ----------
+
+  partition : npt.ArrayLike
+      Array of community labels for each node.
+
+  Returns
+  -------
+
+  npt.NDArray
+      Filtered partition with singletons replaced by -1 and renumbered.'''
+  
+  par = partition.copy()
+  new_partition = par
+  ndc = np.unique(par)
+  for i, c in enumerate(ndc):
+    new_partition[par == c] = i
+  return new_partition
+
 def filter_partition(partition : npt.ArrayLike):
   ''' Filters a partition to remove singleton communities and renumber the communities.
 
@@ -193,23 +215,28 @@ class HNRG:
     self.N = N
     self.R = R
     self.L = L
-    self.plmax_f = False
 
     if seed is not None:
       np.random.seed(seed)
 
-    self.Nh = N *((R+1) ** L)
+    self.N = N *((R+1) ** L)
 
-    self.communitiesh = np.zeros(self.Nh)
+    # Create community labels for the hierarchy
+
+    self.hierarchical_communities_labels = np.zeros(self.N)
     for l in np.arange(L):
       nl = N * (R+1) ** (L - l - 1)
       communities = np.repeat(np.arange((R+1)**(l + 1)), nl)
-      self.communitiesh = np.vstack([self.communitiesh, communities])
+      self.hierarchical_communities_labels = np.vstack([self.hierarchical_communities_labels, communities])
     
-    self.communitiesh = self.communitiesh.T
+    self.hierarchical_communities_labels = self.hierarchical_communities_labels.T
+
+    # Create Community size dictionary Sx
 
     self.Sx = [(R) * N * ((R+1) ** (L-1))] + [N * ((R+1) ** (L-i-1)) for i in np.arange(L)]
     self.Sx = {i : self.Sx[i] for i in range(len(self.Sx))}
+
+    # Create the probability px
 
     self.px = {i : (rho ** (L-i) / (1 + rho) ** (L-i+1)) * (kav / (self.Sx[i]-1)) for i in np.arange(1, L+1)}
     self.px[0] = (rho ** (L) / (1 + rho) ** (L)) * (kav / (self.Sx[0]))
@@ -217,17 +244,17 @@ class HNRG:
     if self.px[L] > 1:
        raise ValueError(f"p(L) = {self.px[L]} > 1. Choose a smaller value of kav or a larger value of rho.")
 
-    condensed_N = int(self.Nh * (self.Nh - 1) // 2)
+    condensed_N = int(self.N * (self.N - 1) // 2)
     pij = np.zeros(condensed_N)
 
     x = 0
-    for i in np.arange(self.Nh):
-      for j in np.arange(i+1, self.Nh):
-        ci = self.communitiesh[i]
-        cj = self.communitiesh[j]
+    for i in np.arange(self.N):
+      for j in np.arange(i+1, self.N):
+        ci = self.hierarchical_communities_labels[i]
+        cj = self.hierarchical_communities_labels[j]
         pij[x] = [u for u in np.arange(L+1) if ci[u] == cj[u]][-1]
         pij[x] = self.px[pij[x]]
         x += 1
 
-    self.Ah = (pij > np.random.uniform(0, 1, size=condensed_N)).astype(int)
-    self.Ah = squareform(self.Ah)
+    self.A = (pij > np.random.uniform(0, 1, size=condensed_N)).astype(int)
+    self.A = squareform(self.A)

@@ -164,7 +164,7 @@ def draw_dendrogram(Z : npt.NDArray, R : int, nodes, cmap_name="hls", leaf_font_
       sns.despine()
       plt.xticks(rotation=90)
 
-def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node_communities=None, node_size=40, linewidth=2, ax=None):
+def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node_communities=None, node_size=40, linewidth=2, ax=None, cm=None):
   ''' 
   Plots a network with nodes colored by their community membership.
 
@@ -190,6 +190,9 @@ def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node
   ax : matplotlib.axes.Axes, optional
       Axes object to draw the plot on. If None, uses the current axes.
       Default is None.
+  cm : dict, optional
+      Dictionary mapping community labels to colors. If None, uses a color palette.
+      Default is None.
   '''
 
   if ax is None:
@@ -197,31 +200,111 @@ def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node
 
   from matplotlib.colors import to_hex
   if node_communities is None:
-    K = fast_cut_tree(H, n_clusters=nc)
-    K = filter_partition(K)
+    labels = fast_cut_tree(H, n_clusters=nc)
+    labels = filter_partition(labels)
   elif isinstance(node_communities, list) or isinstance(node_communities, np.ndarray):
-    K = node_communities
+    labels = node_communities
   else:
     raise ValueError("node_communities is not a list.")
 
-  unique_K = np.sort(np.unique(K))
+  unique_labels = np.sort(np.unique(labels))
   dft_color = to_hex((0.5, 0.5, 0.5))
 
-  if -1 in unique_K:
-    cm = list(sns.color_palette("hls", len(unique_K)-1))
-    cm = [dft_color] + cm
-  else:
-    cm = list(sns.color_palette("hls", len(unique_K)))
-    
-  cm = {str(u): to_hex(c) for u, c in zip(unique_K, cm)}
+  if cm is None:
+    if -1 in unique_labels:
+      cm = list(sns.color_palette("hls", len(unique_labels)-1))
+      cm = [dft_color] + cm
+    else:
+      cm = list(sns.color_palette("hls", len(unique_labels)))
+      
+    cm = {u: to_hex(c) for u, c in zip(unique_labels, cm)}
 
   if pos is None:
     pos = nx.kamada_kawai_layout(G)
   
   nx.draw_networkx_nodes(
-    G, pos=pos, node_color=[cm[str(u)] for u in K],
+    G, pos=pos, node_color=[cm[u] for u in labels],
     node_size=node_size, ax=ax
   )
 
   nx.draw_networkx_edges(G, pos=pos, width=linewidth, ax=ax)
   ax.axis('off')
+
+def tsne_layout(D : npt.NDArray, n_components=2, pf=0.4, random_state=None):
+    '''
+    Computes a t-SNE layout for a distance matrix D.
+
+    Parameters
+    ----------
+
+    D : npt.NDArray
+        Distance matrix.
+    n_components : int, optional
+        Number of dimensions for the t-SNE embedding. Default is 2.
+    pf : float, optional
+        Perplexity factor for t-SNE. Default is 30.
+    random_state : int, optional
+        Random seed for reproducibility. Default is None.
+
+    Returns
+    -------
+
+    pos : dict
+        Dictionary with node indices as keys and their corresponding
+        t-SNE layout positions.
+    '''
+
+    from sklearn.manifold import TSNE
+
+    N = D.shape[0]
+    tsne = TSNE(n_components=n_components, perplexity=(N * pf), random_state=random_state)
+    pos = tsne.fit_transform(D)
+    pos = {i : pos[i] for i in np.arange(pos.shape[0])}
+
+    return pos
+
+def graph_coloring_palette(pos : dict, labels : npt.ArrayLike):
+  '''
+  Creates a graph-coloring palette for the communities in a graph.
+
+  Parameters
+  ----------
+
+  pos : dict
+      Dictionary with node positions.
+  labels : npt.ArrayLike
+      Array of community labels for each node.
+  '''
+  from scipy.spatial import Delaunay
+  colors = {0 : plt.cm.Blues_r, 1 : plt.cm.Reds_r, 2 : plt.cm.Greens_r, 3 : plt.cm.Purples_r, 4: plt.cm.YlOrBr_r, 5 : plt.cm.RdPu_r}
+
+  unique_communities = np.unique(labels)
+
+  pos_array = np.array([p for p in pos.values()])
+
+  G = nx.Graph()
+  pos_graph = {}
+  for u in unique_communities:
+      pos_graph[u] = np.median(pos_array[labels == u], axis=0)
+      G.add_node(u)
+
+  coords = np.array([pos_graph[u] for u in G.nodes()])
+
+  tri = Delaunay(coords)
+
+  for t in tri.simplices:
+      G.add_edge(t[0], t[1])
+      G.add_edge(t[1], t[2])
+      G.add_edge(t[2], t[0])
+
+  is_planar, embedding_or_subgraph = nx.check_planarity(G)
+
+  if not is_planar:
+    print("The graph is not planar.")
+    print("Kuratowski subgraph:", embedding_or_subgraph)
+    raise ValueError("The graph is not planar. Cannot compute coloring palette.")
+  
+  coloring = nx.algorithms.coloring.greedy_color(G, strategy='largest_first')
+
+  node_colors = {n : coloring[n] for n in G.nodes()}
+  return {n : colors[node_colors[n]](0.5) for n in G.nodes()}
