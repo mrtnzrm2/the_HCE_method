@@ -2,7 +2,6 @@ addpath("src/MATLAB/");
 addpath("src/MATLAB/utils/");
 addpath("path_to_HierarchicalConsensus/");       % see README.md for details
 
-
 % Example usage of the HCE method on Hierarchical Benchmark
 
 % Generate a Hierarchical Benchmark model
@@ -15,17 +14,19 @@ p3 = 1 - p0 - p1 - p2; % Probability of edges in the fourth level (zeroth renorm
 S = eventSamples(A, 1000);
 [Sc, Tree] = hierarchicalConsensus(S);
 
-% Transform Tree to a linkage matrix
+% Transform Tree to a linkage matrix (nTree)
 nTree = buildLinkageFromTree(Sc, Tree);
 
-% Zeroth renormalization level
-[labels, ~] = findHCELevel(H, [], 0);
-fprintf("Zeroth renormalization level: %f\n", AMI(labels, Sgtruth(:, end)));
+if ~isempty(Tree)                           % Check if Tree is not empty (very rarely happens)
+    % Zeroth renormalization level
+    [labels, ~] = findHCELevel(nTree, [], 0);
+    fprintf("Zeroth renormalization level: %f\n", AMI(labels, Sgtruth(:, end)));
 
-% First renormalization level
-[labels, ~] = findHCELevel(H, [], 1);
-fprintf("First renormalization level: %f\n", AMI(labels, Sgtruth(:, end - 1)));
+    % First renormalization level
+    [labels, ~] = findHCELevel(nTree, [], 1);
+    fprintf("First renormalization level: %f\n", AMI(labels, Sgtruth(:, end - 1)));
 
-% Second renormalization level
-[labels, ~] = findHCELevel(H, [], 2);
-fprintf("Second renormalization level: %f\n", AMI(labels, Sgtruth(:, end) - 2));
+    % Second renormalization level
+    [labels, ~] = findHCELevel(nTree, [], 2);
+    fprintf("Second renormalization level: %f\n", AMI(labels, Sgtruth(:, end) - 2));
+end

@@ -23,7 +23,8 @@ by Jorge Martinez Armas
 │       ├── utils/
 ├── scripts/
 │   ├── MATLAB/
-│       ├── example.m           # HNRG example in MATLAB
+│       ├── exampleHRNG.m       # hierarchical nested random graph (HNRG; symmetric) example in MATLAB
+│       ├── exampleHB.m         # hierarhical benchmark (HB; asymmetric) example in MATLAB
 ├── notebooks/
 │   ├── examples.ipynb          # Karate Club and HNRG model examples in Python
 ├── requirements.txt
