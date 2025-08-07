@@ -18,12 +18,12 @@ by Jorge Martinez Armas
 .
 ├── src/
 │   ├── Python/
-│       ├── hce_framework.py  # Main
+│       ├── hce_framework.py    # Main
 │   ├── MATLAB/
 │       ├── utils/
 ├── scripts/
 ├── notebooks/
-│   ├── examples.ipynb
+│   ├── examples.ipynb          # Useful examples
 ├── requirements.txt
 └── README.md
 </code></pre>
