@@ -8,7 +8,7 @@ by Jorge Martinez Armas
 
 Hierarchical community structure is a hallmark of complex systems. Many algorithms compute dendrograms to reveal this structure, but identifying meaningful levels is challenging.
 
-We introduce the **Hierarchical Clustering Entropy (HCE)** framework, combining information theory and statistical physics to optimize multilevel partitioning in dendrograms. HCE is tested on synthetic benchmarks (flat, symmetric, asymmetric hierarchies) and real-world networks, from high-school social graphs to larval zebrafish neural networks.
+We introduce the **Hierarchical Clustering Entropy (HCE)** method, combining information theory and statistical physics to optimize multilevel partitioning in dendrograms. HCE is tested on synthetic benchmarks (flat, symmetric, asymmetric hierarchies) and real-world networks, from high-school social graphs to larval zebrafish neural networks.
 
 **Key findings:**  
 - HCE achieves state-of-the-art accuracy in identifying hierarchical organization in networks with ground truth.
