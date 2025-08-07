@@ -99,6 +99,9 @@ def fast_cut_tree(H : npt.NDArray, n_clusters=None, height=None):
         Array of cluster labels for each node in the hierarchy.
   '''
 
+  if H.ndim != 2 or H.shape[1] != 4:
+    raise ValueError("H must be a linkage matrix with shape (n-1, 4).")
+
   if n_clusters is None and height is None:
     raise ValueError("n_clusters or height must be given.")
   elif n_clusters is not None and height is None:
@@ -115,6 +118,7 @@ def fast_cut_tree(H : npt.NDArray, n_clusters=None, height=None):
 
   K = N
   i = 0
+
   while True:
     if thrd_t == 0:
       if K <= thrd: break
@@ -149,7 +153,7 @@ def filter_partition(partition : npt.ArrayLike):
 
   Returns
   -------
-  
+
   npt.NDArray
       Filtered partition with singletons replaced by -1 and renumbered.'''
   par = partition.copy()

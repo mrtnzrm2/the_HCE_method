@@ -3,7 +3,7 @@ import numpy.typing as npt
 from utils import *
 from plot_utils import draw_dendrogram
 
-def ffind_hce_level(H : npt.NDArray, nK=None, rn=0, on=True, **kwargs):
+def ffind_hce_level(H : npt.NDArray, rn=0, nK=None, on=True, **kwargs):
   ''' 
   Finds the optimal hierarchical level using the HCE method from a linkage matrix.
 
@@ -12,10 +12,10 @@ def ffind_hce_level(H : npt.NDArray, nK=None, rn=0, on=True, **kwargs):
 
   H : npt.NDArray
       Linkage matrix in Scipy format.
-  nK : int, optional
-      Specify partition level with nK communties. If None, the optimal number of communities is determined.
   rn : int, optional
       Number of renormalization steps to find the optimal hierarchical level. Default is 0.
+  nK : int, optional
+      Specify partition level with nK communties. If None, the optimal number of communities is determined.
   on : bool, optional
       If True, draws the dendrogram. Default is True.
   kwargs : dict, optional
@@ -24,22 +24,24 @@ def ffind_hce_level(H : npt.NDArray, nK=None, rn=0, on=True, **kwargs):
   Returns
   -------
 
-  labels : (N,) Community memberships
-  K : int Number of communities
+  labels : (npt.NDArray)
+      Community memberships at the optimal level
+  K : int
+      Number of communities at the optimal level
   '''
 
-  if H.ndim != 2 or H.shape[1] != 3:
-    raise ValueError("H must be a 2D array with shape (N-1, 3).")
+  if H.ndim != 2 or H.shape[1] != 4:
+    raise ValueError("H must be a 2D array with shape (N-1, 4).")
   
   if nK is None:
   
     hce = HCE(H, (H.shape[0] + 1))
-    K, _ = get_best_hce_level(hce, on=False)
+    K, _ = get_best_hce_level(hce)
 
     i = 0
     while i < rn:
       hce = rHCE(H, (H.shape[0] + 1), K)
-      K, _ = get_best_hce_level(hce, on=False)
+      K, _ = get_best_hce_level(hce)
       i += 1
 
   else:
@@ -76,9 +78,9 @@ def find_hce_level(distM : npt.NDArray, method="average", nK=None, rn=0, on=True
   -------
 
   labels : (npt.NDArray)
-      Community memberships
+      Community memberships at the optimal level
   K : int
-      Number of communities
+      Number of communities at the optimal level
   '''
   from scipy.cluster.hierarchy import linkage
   from scipy.spatial.distance import squareform
@@ -138,8 +140,8 @@ def HCE(H : npt.NDArray, N : int, use_tqdm=False):
 
     if H.shape[0] != N - 1:
         raise ValueError(f"Expected {N-1} rows in H, got {H.shape[0]}.")
-    if H.shape[1] != 3:
-        raise ValueError(f"Expected 3 columns in H, got {H.shape[1]}.")
+    if H.shape[1] != 4:
+        raise ValueError(f"Expected 4 columns in H, got {H.shape[1]}.")
     
     from tqdm import tqdm
     
@@ -202,8 +204,8 @@ def rHCE(H : npt.NDArray, N : int, rN : int, use_tqdm=False):
 
     if H.shape[0] != N - 1:
         raise ValueError(f"Expected {N-1} rows in H, got {H.shape[0]}.")
-    if H.shape[1] != 3:
-        raise ValueError(f"Expected 3 columns in H, got {H.shape[1]}.")
+    if H.shape[1] != 4:
+        raise ValueError(f"Expected 4 columns in H, got {H.shape[1]}.")
     if rN < 1 or rN >= N:
         raise ValueError(f"rN must be in the range [1, {N-1}]. Got {rN}.")
     
