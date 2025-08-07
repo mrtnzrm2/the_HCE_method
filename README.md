@@ -18,10 +18,7 @@ by Jorge Martinez Armas
 .
 ├── src/
 │   ├── Python/
-│       ├── hce.py
-│       ├── utils.py
 │   ├── MATLAB/
-│       ├── findHCELevel.m
 │       ├── utils/
 ├── scripts/
 ├── notebooks/
