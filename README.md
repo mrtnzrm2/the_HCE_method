@@ -1,42 +1,62 @@
-# The HCE method
+# The HCE Method
 
-Official code for the paper:
-
-**Hierarchical community detection via maximum entropy partitions and the renormalization group**
-
+Official code for the paper:  
+**Hierarchical community detection via maximum entropy partitions and the renormalization group**  
 by Jorge Martinez Armas
 
 ## Overview
-- Complex systems often feature a community and hierarchical organization. Several algorithms exist to compute dendrograms encoding the hierarchical community structure of a system. However, it is challenging to identify suitable dendrogram levels with meaningful clustering information.
-- Our contribution is to develop the *Hierarchical Clustering Entropy* (HCE) framework that combines elements from information theory :floppy_disk: and physics :rocket: to optimize the discovery of multilevel partitions of a dendrogram to get a more comprenhensive of the interation of elemets of a system at multiple resolutions.
-- The framework is tested in several benchmarks exhibiting flat, symmetric, and asymmetric hierarchical structure, as well as, real-world networks with hundreds (high-school :school:) to thoursands (larval zebrafish :fish:) nodes.
-- Our key findings are that HCE (1) identifies with state-of-the-art accuracy the hierarhical organization of networks with ground truth, and (2) known structural and functional organizations in reald-world networks.
 
-## Repository structure
+Hierarchical community structure is a hallmark of complex systems. Many algorithms compute dendrograms to reveal this structure, but identifying meaningful levels is challenging.
 
-<pre lang="markdown"><code>
+We introduce the **Hierarchical Clustering Entropy (HCE)** framework, combining information theory and statistical physics to optimize multilevel partitioning in dendrograms. HCE is tested on synthetic benchmarks (flat, symmetric, asymmetric hierarchies) and real-world networks, from high-school social graphs to larval zebrafish neural networks.
+
+**Key findings:**  
+- HCE achieves state-of-the-art accuracy in identifying hierarchical organization in networks with ground truth.
+- It also uncovers known structural and functional organization in diverse real-world datasets.
+
+## Repository Structure
+
+```
 .
 ├── src/
 │   ├── Python/
-│       ├── hce_framework.py    # Main
+│   │   └── hce_framework.py        # Main Python module for HCE
 │   ├── MATLAB/
-│       ├── utils/
+│   │   └── utils/                  # MATLAB utility functions
 ├── scripts/
 │   ├── MATLAB/
-│       ├── exampleHRNG.m       # hierarchical nested random graph (HNRG; symmetric) example in MATLAB
-│       ├── exampleHB.m         # hierarhical benchmark (HB; asymmetric) example in MATLAB
+│   │   ├── exampleHRNG.m           # HNRG (symmetric) example
+│   │   └── exampleHB.m             # Hierarchical benchmark (asymmetric) example
 ├── notebooks/
-│   ├── examples.ipynb          # Karate Club and HNRG model examples in Python
+│   └── examples.ipynb              # Python examples: Karate Club, HNRG
 ├── requirements.txt
 └── README.md
-</code></pre>
+```
 
+## Getting Started
+
+### Python
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/mrtnzrm2/the_HCE_method.git
+    cd hce-method
+    ```
+2. Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. Run examples in the Jupyter notebook:
+    ```bash
+    jupyter notebook notebooks/examples.ipynb
+    ```
+
+### MATLAB
+
+Requires **Statistics and Machine Learning Toolbox** (see below).
 
 ## MATLAB Prerequisites
 This repository requires the **Statistics and Machine Learning Toolbox** from MATLAB.
-
-### Why do I need this?
-It is needed to run the HNRG model.
 
 ### How to install
 You can install the toolbox using one of the following methods:
@@ -54,3 +74,12 @@ You can install the toolbox using one of the following methods:
   ```
 
 > **Note:** Ensure you are using MATLAB R2021a or newer for full compatibility.
+
+## License
+
+This project is licensed under the [BSD 3-Clause License](LICENSE).
+
+## Contact
+
+Contact: Jorge Martinez Armas (<jmrtnza@gmail.com>)  
+For issues or support, please use the [GitHub Issues](https://github.com/mrtnzrm2/the_HCE_method.git/issues).
