@@ -11,7 +11,7 @@ Hierarchical community structure is a hallmark of complex systems. Many algorith
 We introduce the **Hierarchical Clustering Entropy (HCE)** method, combining information theory and statistical physics to optimize multilevel partitioning in dendrograms. HCE is tested on synthetic benchmarks (flat, symmetric, asymmetric hierarchies) and real-world networks, from high-school social graphs to larval zebrafish neural networks.
 
 **Key findings:**  
-- HCE achieves state-of-the-art accuracy in identifying hierarchical organization in networks with ground truth.
+- HCE reliably identifies hierarchical organization in networks with known ground truth, achieving performance comparable to state-of-the-art methods.
 - It also uncovers known structural and functional organization in diverse real-world datasets.
 
 ## Repository Structure
