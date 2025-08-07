@@ -40,7 +40,7 @@ We introduce the **Hierarchical Clustering Entropy (HCE)** framework, combining 
 1. Clone the repository:
     ```bash
     git clone https://github.com/mrtnzrm2/the_HCE_method.git
-    cd hce-method
+    cd the_HCE_method
     ```
 2. Install dependencies:
     ```bash
