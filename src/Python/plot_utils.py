@@ -164,7 +164,7 @@ def draw_dendrogram(Z : npt.NDArray, R : int, nodes, cmap_name="hls", leaf_font_
       sns.despine()
       plt.xticks(rotation=90)
 
-def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node_communities=None, node_size=40, linewidth=2, ax=None, cm=None):
+def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, edgewidth=0.5, node_communities=None, node_size=40, linewidth=2, ax=None, cm=None):
   ''' 
   Plots a network with nodes colored by their community membership.
 
@@ -224,6 +224,7 @@ def plot_network_linkage(G : nx.Graph, H : npt.NDArray, nc : int, pos=None, node
   
   nx.draw_networkx_nodes(
     G, pos=pos, node_color=[cm[u] for u in labels],
+    edgecolors="k", linewidths=edgewidth,
     node_size=node_size, ax=ax
   )
 
@@ -263,7 +264,7 @@ def tsne_layout(D : npt.NDArray, n_components=2, pf=0.4, random_state=None):
 
     return pos
 
-def graph_coloring_palette(pos : dict, labels : npt.ArrayLike):
+def graph_coloring_palette(pos : dict, labels : npt.ArrayLike, alpha=0.75):
   '''
   Creates a graph-coloring palette for the communities in a graph.
 
@@ -307,4 +308,4 @@ def graph_coloring_palette(pos : dict, labels : npt.ArrayLike):
   coloring = nx.algorithms.coloring.greedy_color(G, strategy='largest_first')
 
   node_colors = {n : coloring[n] for n in G.nodes()}
-  return {n : colors[node_colors[n]](0.5) for n in G.nodes()}
+  return {n : colors[node_colors[n]](alpha) for n in G.nodes()}

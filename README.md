@@ -22,9 +22,34 @@ by Jorge Martinez Armas
 │   ├── MATLAB/
 │       ├── utils/
 ├── scripts/
+│   ├── MATLAB/
+│       ├── example.m           # HNRG example in MATLAB
 ├── notebooks/
-│   ├── examples.ipynb          # Useful examples
+│   ├── examples.ipynb          # Karate Club and HNRG model examples in Python
 ├── requirements.txt
 └── README.md
 </code></pre>
 
+
+## MATLAB Prerequisites
+This repository requires the **Statistics and Machine Learning Toolbox** from MATLAB.
+
+### Why do I need this?
+It is needed to run the HNRG model.
+
+### How to install
+You can install the toolbox using one of the following methods:
+
+- **MATLAB Add-On Explorer:**  
+  1. Open MATLAB.
+  2. Go to the "Home" tab.
+  3. Click "Add-Ons" > "Get Add-Ons".
+  4. Search for **Statistics and Machine Learning Toolbox** and install.
+
+- **MATLAB Command Line:**  
+  Run the following command in MATLAB:
+  ```matlab
+  matlab.addons.install('Statistics and Machine Learning Toolbox')
+  ```
+
+> **Note:** Ensure you are using MATLAB R2021a or newer for full compatibility.

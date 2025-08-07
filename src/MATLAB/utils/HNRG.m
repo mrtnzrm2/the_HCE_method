@@ -4,8 +4,8 @@ classdef HNRG
         R
         L
         Nh
-        communitiesh
-        Ah
+        hierarchical_community_labels
+        A
         plmax_f = false
     end
     
@@ -27,12 +27,12 @@ classdef HNRG
             
             obj.Nh = N * (R + 1)^L;
             
-            obj.communitiesh = zeros(obj.Nh, 1);
+            obj.hierarchical_community_labels = zeros(obj.Nh, 1);
             for l = 0:L-1
                 nl = N * (R + 1)^(L - l - 1);
                 communities = repmat((0:(R+1)^(l+1)-1)', 1, nl);
                 communities = reshape(communities', [], 1);
-                obj.communitiesh = [obj.communitiesh, communities];
+                obj.hierarchical_community_labels = [obj.hierarchical_community_labels, communities];
             end
 
             % Sx computation
@@ -61,8 +61,8 @@ classdef HNRG
             x = 1;
             for i = 1:obj.Nh
                 for j = (i+1):obj.Nh
-                    ci = obj.communitiesh(i, :);
-                    cj = obj.communitiesh(j, :);
+                    ci = obj.hierarchical_community_labels(i, :);
+                    cj = obj.hierarchical_community_labels(j, :);
                     match_level = find(ci == cj, 1, 'last') - 1; % adjust to 0-based level
                     pij(x) = px(match_level);
                     x = x + 1;
@@ -71,7 +71,8 @@ classdef HNRG
             
             % Generate adjacency matrix
             edges = pij > rand(size(pij));
-            obj.Ah = squareform(edges); % MATLAB's squareform from Statistics and ML Toolbox
+            obj.A = squareform(edges); % MATLAB's squareform from Statistics and ML Toolbox
+            obj.A = double(obj.A); % Convert logical to double
         end
     end
 end
