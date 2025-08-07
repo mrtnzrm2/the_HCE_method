@@ -35,6 +35,18 @@ We introduce the **Hierarchical Clustering Entropy (HCE)** method, combining inf
 
 ## Getting Started
 
+### Create a Python virtual environment (recommended)
+
+It is recommended to use a virtual environment to manage dependencies.  
+To create a virtual environment with Python 3.11.9, run:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+```
+
+If you do not have Python 3.11.9 installed, download it from [python.org](https://www.python.org/downloads/release/python-3119/).
+
 ### Python
 
 1. Clone the repository:
