@@ -17,7 +17,6 @@ H = linkage(squareform(D), 'average');
 
 % Zeroth renormalization level
 [labels, ~] = findHCELevel(H, [], 0);
-
 fprintf("Zeroth renormalization level: %f\n", AMI(labels, G.hierarchical_community_labels(:, end) + 1));
 
 % First renormalization level
